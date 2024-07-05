@@ -10,7 +10,7 @@ public class InitializeCRT : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        linkedCRT.Initialize();
     }
 
     // Update is called once per frame
