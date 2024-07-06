@@ -59,18 +59,21 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         // Compute the new state as usual
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
         
-        float newState = (2 * cellData.r - cellData.g + phaseVelocitySquared * (
+        float waveMotion = phaseVelocitySquared * (
             cellUpData.r +
             cellDownData.r +
             cellLeftData.r +
             cellRightData.r
-            - 4 * cellData.r)
-            ) * attenuation;
+            - 4 * cellData.r);
+        
+        //float newWaveHeight = (cellData.r + cellData.g)*0.5;// + waveMotion;
+        float newWaveHeight = saturate(2 * cellData.r - cellData.g);// + waveMotion;
+        //newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
         
         // Prevent edge reflections
-        //newState = (1 - isBoundaryPixelSignal) * newState;// + isBoundaryPixel * 0.5;
+        //newWaveHeight = (1 - isBoundaryPixelSignal) * newWaveHeight;// + isBoundaryPixel * 0.5;
 
-        float4 returnValue = float4(newState, cellData.r, 0, 0);
+        float4 returnValue = float4(newWaveHeight, cellData.g, 0, 0);
 
         // Depth camera
         
