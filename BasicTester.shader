@@ -52,10 +52,10 @@ Shader "Unlit/BasicTester"
 
                 float x = 1 - sign(uv.x - d);
 
-                float leftEdge = 1 - saturate(sign(uv.x - 0.1));
-                float topEdge = 1 - saturate(sign(uv.y - 0.1));
-                float rightEdge = 1 - saturate(sign(0.9 - uv.x));
-                float bottomEdge = 1 - saturate(sign(0.9 - uv.y));
+                float leftEdge = 1 - saturate(sign(uv.x - 0.01));
+                float topEdge = 1 - saturate(sign(uv.y - 0.01));
+                float rightEdge = 1 - saturate(sign(0.99 - uv.x));
+                float bottomEdge = 1 - saturate(sign(0.99 - uv.y));
 
                 return saturate(leftEdge + topEdge + rightEdge + bottomEdge);
                 
