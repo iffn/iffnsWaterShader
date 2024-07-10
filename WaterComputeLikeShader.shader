@@ -18,8 +18,6 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     float attenuation = 0.999;
     sampler2D _depthTexture;
 
-    //OtherParameterDefinitions
-
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
         /*
@@ -46,7 +44,6 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float4 cellRightData = currentTexture(uv + duv.xw);
         float4 cellLeftData = currentTexture(uv - duv.xw);
 
-        // Waves:
         // Store edge values for boundary check
         float leftEdgeSignal = step(uv.x, pixelWidthU);
         float topEdgeSignal = step(uv.y, pixelWidthV);
@@ -57,10 +54,8 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float isBoundaryPixelSignal = saturate(leftEdgeSignal + topEdgeSignal + rightEdgeSignal + bottomEdgeSignal);
         float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
-        // Compute the new state as usual
+        // Calculate waves
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
-        
-        
         float waveMotion = phaseVelocitySquared * (
             cellUpData.r +
             cellDownData.r +
@@ -68,9 +63,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             cellRightData.r
             - 4 * cellData.r);
         
-        
-        //float newWaveHeight = (cellData.r + cellData.g)*0.5;// + waveMotion;
-        float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;    
+        float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;
         newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
         
         // Prevent edge reflections
@@ -85,17 +78,11 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float depthValueRaw = tex2D(_depthTexture, uvDepth);
         returnValue = saturate(sign(depthValueRaw) + returnValue);
         */
-
         
         float edgeWave = sin(_Time.x * 30) * 0.5 + 0.5;
         returnValue.x = (1-leftEdgeSignal) * returnValue.x + leftEdgeSignal * edgeWave;
 
         return returnValue;
-        //return cellData;
-        
-        //Edge wave:
-        /*
-        */
     }
 
     ENDCG
