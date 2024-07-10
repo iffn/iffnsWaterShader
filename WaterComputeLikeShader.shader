@@ -67,13 +67,13 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             - 4 * cellData.r);
         
         //float newWaveHeight = (cellData.r + cellData.g)*0.5;// + waveMotion;
-        float newWaveHeight = saturate(2 * cellData.r - cellData.g);// + waveMotion;
-        //newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
+        float newWaveHeight = saturate(2 * cellData.r - cellData.g);// + waveMotion;    
+        newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
         
         // Prevent edge reflections
         //newWaveHeight = (1 - isBoundaryPixelSignal) * newWaveHeight;// + isBoundaryPixel * 0.5;
 
-        float4 returnValue = float4(newWaveHeight, cellData.g, 0, 0);
+        float4 returnValue = float4(newWaveHeight, cellData.r, 1, 0);
 
         // Depth camera
         
@@ -82,7 +82,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         returnValue = saturate(sign(depthValueRaw) + returnValue);
         
         return returnValue;
-
+        //return cellData;
         
         //Edge wave:
         /*
