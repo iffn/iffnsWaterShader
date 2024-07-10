@@ -55,9 +55,11 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         // Compute isBoundaryPixel by combining edge checks
         float isBoundaryPixelSignal = saturate(leftEdgeSignal + topEdgeSignal + rightEdgeSignal + bottomEdgeSignal);
+        float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
         // Compute the new state as usual
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
+        
         
         float waveMotion = phaseVelocitySquared * (
             cellUpData.r +
@@ -66,28 +68,34 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             cellRightData.r
             - 4 * cellData.r);
         
+        
         //float newWaveHeight = (cellData.r + cellData.g)*0.5;// + waveMotion;
-        float newWaveHeight = saturate(2 * cellData.r - cellData.g);// + waveMotion;    
+        float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;    
         newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
         
         // Prevent edge reflections
         //newWaveHeight = (1 - isBoundaryPixelSignal) * newWaveHeight;// + isBoundaryPixel * 0.5;
-
-        float4 returnValue = float4(newWaveHeight, cellData.r, 1, 0);
+        
+        //float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
+        float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
 
         // Depth camera
-        
+        /*
         float2 uvDepth = float2(-uv.x + 1, uv.y);
         float depthValueRaw = tex2D(_depthTexture, uvDepth);
         returnValue = saturate(sign(depthValueRaw) + returnValue);
+        */
+
         
-        return returnValue;
+        float edgeWave = sin(_Time.x * 30) * 0.5 + 0.5;
+        returnValue.x = isNotBoundaryPixelSignal * returnValue.x + leftEdgeSignal * edgeWave;
+        
+
+        return isNotBoundaryPixelSignal;
         //return cellData;
         
         //Edge wave:
         /*
-        float edgeWave = sin(_Time.x * 30) * 0.5 + 0.5;
-        returnValue.x = edgeInverse * returnValue.x + leftEdge * edgeWave;
         */
     }
 

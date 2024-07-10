@@ -22,7 +22,7 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
 
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
-        return float4(0.5, 0.45, 0, 0);
+        return float4(0.5, 0.5, 0, 0);
     }
 
     ENDCG
