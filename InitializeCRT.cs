@@ -26,19 +26,28 @@ public class InitializeCRT : MonoBehaviour
     }
 
     public Material debugMaterial;
-    public Vector4 currentColor;
+
+    public Vector2Int grabCoordinate;
+    public float r;
+    public float g;
+    public float b;
+    public float a;
+
 
     // Update is called once per frame
     void Update()
     {
-        if(initialTimeCounter == Time.frameCount + 1)
+        if(Time.frameCount == initialTimeCounter + 60)
         {
             linkedCRT.material = WaterCalculationMaterial;
         }
 
-        Color debugColor = ReadPixel(linkedCRT, 50, 50);
+        Color debugColor = ReadPixel(linkedCRT, grabCoordinate.x, grabCoordinate.y);
 
-        debugColor = new Vector4(debugColor.r, debugColor.g, debugColor.b, debugColor.a);
+        r = debugColor.r;
+        g = debugColor.g;
+        b = debugColor.b;
+        a = debugColor.a;
 
         debugMaterial = linkedCRT.material;
     }
