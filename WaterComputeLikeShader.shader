@@ -88,10 +88,9 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         
         float edgeWave = sin(_Time.x * 30) * 0.5 + 0.5;
-        returnValue.x = isNotBoundaryPixelSignal * returnValue.x + leftEdgeSignal * edgeWave;
-        
+        returnValue.x = (1-leftEdgeSignal) * returnValue.x + leftEdgeSignal * edgeWave;
 
-        return isNotBoundaryPixelSignal;
+        return returnValue;
         //return cellData;
         
         //Edge wave:
