@@ -4,9 +4,19 @@ using UnityEngine;
 
 public class InitializeCRT : MonoBehaviour
 {
+    [Header("Unity assignments")]
     [SerializeField] CustomRenderTexture linkedCRT;
     [SerializeField] Material WaterInitializationMaterial;
     [SerializeField] Material WaterCalculationMaterial;
+
+    [Header("Debug")]
+    public Material debugMaterial;
+    public float FPS;
+    public Vector2Int grabCoordinate;
+    public float r;
+    public float g;
+    public float b;
+    public float a;
 
     int initialTimeCounter;
 
@@ -25,18 +35,12 @@ public class InitializeCRT : MonoBehaviour
         InitializeMaterial();
     }
 
-    public Material debugMaterial;
-
-    public Vector2Int grabCoordinate;
-    public float r;
-    public float g;
-    public float b;
-    public float a;
-
 
     // Update is called once per frame
     void Update()
     {
+        FPS = 1f / Time.deltaTime;
+
         if(Time.frameCount == initialTimeCounter + 60)
         {
             linkedCRT.material = WaterCalculationMaterial;
