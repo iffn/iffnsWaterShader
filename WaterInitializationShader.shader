@@ -22,6 +22,30 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
 
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
+        //Retrn edge signal
+        float2 uv = i.globalTexcoord;
+        float pixelWidthU = 1.0 / _CustomRenderTextureWidth;
+        float pixelWidthV = 1.0 / _CustomRenderTextureHeight;
+        float4 duv = float4(pixelWidthU, pixelWidthV, 0 ,0);
+
+        //Relative cell data:
+        // r = current state, g = previous state
+        float4 cellData = currentTexture(uv);
+        float4 cellUpData = currentTexture(uv + duv.wy);
+        float4 cellDownData = currentTexture(uv - duv.wy);
+        float4 cellRightData = currentTexture(uv + duv.xw);
+        float4 cellLeftData = currentTexture(uv - duv.xw);
+
+        // Store edge values for boundary check
+        float leftEdgeSignal = step(uv.x, pixelWidthU);
+
+        float4 returnValue = float4(0.5, 0.5, 0, 0);
+
+        returnValue = (1-leftEdgeSignal) * returnValue + leftEdgeSignal * (1, 1, 0, 0);
+
+        return returnValue;
+
+        //Return flat
         return float4(0.5, 0.5, 0, 0);
     }
 

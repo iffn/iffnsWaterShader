@@ -79,8 +79,9 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         returnValue = saturate(sign(depthValueRaw) + returnValue);
         */
         
-        float edgeWave = sin(_Time.x * 30) * 0.5 + 0.5;
-        returnValue.x = (1-leftEdgeSignal) * returnValue.x + leftEdgeSignal * edgeWave;
+        float edgeWave = 1;
+        returnValue.xy = (1-rightEdgeSignal) * returnValue.xy + rightEdgeSignal * (0.5, 0.5);
+        returnValue.xy = (1-leftEdgeSignal) * returnValue.xy + leftEdgeSignal * edgeWave.xx;
 
         return returnValue;
     }
