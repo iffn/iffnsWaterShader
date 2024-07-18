@@ -120,10 +120,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             sigma = max(sigma, sigmaMax * (pmlThickness - distBottom) / pmlThickness);
         } else if (distTop < pmlThickness) {
             sigma = max(sigma, sigmaMax * (pmlThickness - distTop) / pmlThickness);
-    }
+        }
 
-    return sigma;
-}
+        return sigma;
+    }
 
     ENDCG
 
