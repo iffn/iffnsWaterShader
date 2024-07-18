@@ -17,6 +17,8 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
     sampler2D _depthTexture;
+    float pmlThickness = 5; // Thickness of the PML region
+    float sigmaMax = 5; // Maximum damping coefficient
 
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
@@ -67,6 +69,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
         
         // Prevent edge reflections
+        float sigma = computeSigma(uv, _CustomRenderTextureWidth, _CustomRenderTextureHeight, pmlThickness, sigmaMax);
+        float dampingFactor = exp(-sigma * _Time.deltaTime);
+        newWaveHeight *= dampingFactor
+
         //newWaveHeight = (1 - isBoundaryPixelSignal) * newWaveHeight;// + isBoundaryPixel * 0.5;
         
         //float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
@@ -85,6 +91,33 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         return returnValue;
     }
+
+    float computeSigma(float2 uv, float width, float height, float pmlThickness, float sigmaMax) {
+        float sigma = 0.0;
+
+        // Calculate distance to left/right boundaries
+        float distLeft = uv.x * width;
+        float distRight = (1.0 - uv.x) * width;
+
+        // Calculate distance to top/bottom boundaries
+        float distBottom = uv.y * height;
+        float distTop = (1.0 - uv.y) * height;
+
+        // Calculate sigma based on distance to nearest boundary
+        if (distLeft < pmlThickness) {
+            sigma = sigmaMax * (pmlThickness - distLeft) / pmlThickness;
+        } else if (distRight < pmlThickness) {
+            sigma = sigmaMax * (pmlThickness - distRight) / pmlThickness;
+        }
+
+        if (distBottom < pmlThickness) {
+            sigma = max(sigma, sigmaMax * (pmlThickness - distBottom) / pmlThickness);
+        } else if (distTop < pmlThickness) {
+            sigma = max(sigma, sigmaMax * (pmlThickness - distTop) / pmlThickness);
+    }
+
+    return sigma;
+}
 
     ENDCG
 
