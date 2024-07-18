@@ -56,6 +56,12 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float isBoundaryPixelSignal = saturate(leftEdgeSignal + topEdgeSignal + rightEdgeSignal + bottomEdgeSignal);
         float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
+        // Zero gradient boundary conditions
+        cellLeftData.r = lerp(cellLeftData.r, cellData.r, leftEdgeSignal);
+        cellRightData.r = lerp(cellRightData.r, cellData.r, rightEdgeSignal);
+        cellUpData.r = lerp(cellUpData.r, cellData.r, topEdgeSignal);
+        cellDownData.r = lerp(cellDownData.r, cellData.r, bottomEdgeSignal);
+
         // Calculate waves
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
         float waveMotion = phaseVelocitySquared * (
