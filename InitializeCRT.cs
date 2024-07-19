@@ -17,8 +17,14 @@ public class InitializeCRT : MonoBehaviour
     public float g;
     public float b;
     public float a;
+    public int max;
+
+    public string timeOutput = "";
+    public string valueOutput = "";
 
     int initialTimeCounter;
+
+    int counter;
 
     void InitializeMaterial()
     {
@@ -47,6 +53,15 @@ public class InitializeCRT : MonoBehaviour
         }
 
         Color debugColor = ReadPixel(linkedCRT, grabCoordinate.x, grabCoordinate.y);
+
+        //timeOutput += $"{Time.time}\n";
+
+        if (counter++ < max)
+        {
+            valueOutput += $"{debugColor.r}\n";
+        }
+
+        if (counter == max) Debug.Log("Reached");
 
         r = debugColor.r;
         g = debugColor.g;

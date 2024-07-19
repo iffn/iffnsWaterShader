@@ -3,7 +3,6 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
     Properties
     {
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
-        attenuation("Attenuation", Range(0.0001, 1)) = 0.999
         _depthTexture("DepthTexture", 2D) = "white"
         //OtherPublicParameterDefinitions
     }
@@ -19,6 +18,8 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
     sampler2D _depthTexture;
 
     //OtherParameterDefinitions
+
+    
 
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
@@ -42,14 +43,16 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         float4 returnValue = float4(0.5, 0.5, 0, 0);
 
         //Center signal
+        /*
         float horizontalCenter = -abs(uv.x-0.5)+0.1;
         float verticalCenter = -abs(uv.y-0.5)+0.1;
         float center = horizontalCenter + verticalCenter;
         center = max(center, 0) * 5;
         returnValue.xy += center;
-
+        */
+        
         //Left edge signal
-        //returnValue = (1-leftEdgeSignal) * returnValue + leftEdgeSignal * (1, 1, 0, 0);
+        returnValue = (1-leftEdgeSignal) * returnValue + leftEdgeSignal * (1, 1, 0, 0);
 
         return returnValue;
 

@@ -47,6 +47,8 @@ Shader "Unlit/BasicTester"
             float left(float x){ return max(cos(x), sign(x)); }
             float right(float x) { return max(cos(x), sign(-x)); }
             float leftRight(float x) { return min(left(x*5-1.5),sign(-x+0.5)*0.5+0.5) + min(right(x*5-3.5),sign(x-0.5)*0.5+0.5);}
+            
+            float corner(float x, float a, float b) {return min((1-a)/(b-1)*(x-b)+1, 1);}
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -81,7 +83,7 @@ Shader "Unlit/BasicTester"
                 float edgeMultipler = saturate((horizontalEdgeMultiplier + verticalEdgeMultiplier) - 1);
 
                 //return min(left(uv.x*5-1.5),sign(-uv.x+0.5)*0.5+0.5);
-                return edgeMultipler;
+                return corner(uv.x, 0.2, 0.5);;
             }
             ENDCG
         }

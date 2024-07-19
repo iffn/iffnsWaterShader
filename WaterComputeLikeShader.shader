@@ -4,8 +4,8 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     {
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
         attenuation("Attenuation", Range(0.0001, 1)) = 0.999
-        attenuation("Attenuation", Range(0.0001, 1)) = 0.999
-        pmlThickness("pmlThickness", Range(0.0001, 10)) = 5
+        a("a", Range(0.0001, 1)) = 0.9
+        b("b", Range(0.0001, 1)) = 0.9
         //OtherPublicParameterDefinitions
     }
 
@@ -17,11 +17,11 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
+    float a = 0.9;
+    float b = 0.9;
     sampler2D _depthTexture;
 
-    float left(float x){ return max(cos(x), sign(x)); }
-    float right(float x) { return max(cos(x), sign(-x)); }
-    float leftRight(float x) { return min(left(x*5-1.5),sign(-x+0.5)*0.5+0.5) + min(right(x*5-3.5),sign(x-0.5)*0.5+0.5);}
+    float corner(float x, float a, float b) {return min((1-a)/(b-1)*(x-b)+1, 1);}
     
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
@@ -30,10 +30,6 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         - Data: r = last frame state, g = state before last frame
         - Signal: 1 if it applies, 0 if not
         */
-
-        // Time adjustments:
-        //phaseVelocitySquared *= unity_DeltaTime.x;
-        //attenuation = pow(attenuation, unity_DeltaTime.x);
 
         // Pixel coordinates:
         float2 uv = i.globalTexcoord;
@@ -66,16 +62,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         cellDownData.r = lerp(cellDownData.r, cellData.r, bottomEdgeSignal);
 
         // Attenuation with edge reflection prevention
-        /*
-        float horizontalEdgeMultiplier = -max(abs(uv.x-0.5)-0.3, 0) * 2;
-        float verticalEdgeMultiplier = -max(abs(uv.y-0.5)-0.3, 0) * 2;
-        float edgeMultipler = horizontalEdgeMultiplier + verticalEdgeMultiplier + 1;
-        */
-        float horizontalEdgeMultiplier = leftRight(uv.x);
-        float verticalEdgeMultiplier = leftRight(uv.y);
-        float edgeMultipler = saturate((horizontalEdgeMultiplier + verticalEdgeMultiplier) - 1);
-
-        float attenuationWithEdges = edgeMultipler * attenuation;
+        float attenuationMultiplier = corner(uv.x, a, b) * attenuation;
 
         // Calculate waves
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
@@ -85,26 +72,11 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             cellLeftData.r +
             cellRightData.r
             - 4 * cellData.r);
-        
 
         float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;
-        //newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
-        newWaveHeight = lerp(0.5, newWaveHeight, attenuationWithEdges);
-        
-        //float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
+        newWaveHeight = lerp(0.5, newWaveHeight, attenuationMultiplier);
         float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
-
-        // Depth camera
-        /*
-        float2 uvDepth = float2(-uv.x + 1, uv.y);
-        float depthValueRaw = tex2D(_depthTexture, uvDepth);
-        returnValue = saturate(sign(depthValueRaw) + returnValue);
-        */
         
-        float edgeWave = 1;
-        //returnValue.xy = (1-rightEdgeSignal) * returnValue.xy + rightEdgeSignal * (0.5, 0.5);
-        //returnValue.xy = (1-leftEdgeSignal) * returnValue.xy + leftEdgeSignal * edgeWave.xx;
-
         return returnValue;
     }
 
