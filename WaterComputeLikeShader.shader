@@ -19,6 +19,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     float attenuation = 0.999;
     sampler2D _depthTexture;
 
+    float left(float x){ return max(cos(x), sign(x)); }
+    float right(float x) { return max(cos(x), sign(-x)); }
+    float leftRight(float x) { return min(left(x*5-1.5),sign(-x+0.5)*0.5+0.5) + min(right(x*5-3.5),sign(x-0.5)*0.5+0.5);}
+    
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
         /*
@@ -61,6 +65,18 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         cellUpData.r = lerp(cellUpData.r, cellData.r, topEdgeSignal);
         cellDownData.r = lerp(cellDownData.r, cellData.r, bottomEdgeSignal);
 
+        // Attenuation with edge reflection prevention
+        /*
+        float horizontalEdgeMultiplier = -max(abs(uv.x-0.5)-0.3, 0) * 2;
+        float verticalEdgeMultiplier = -max(abs(uv.y-0.5)-0.3, 0) * 2;
+        float edgeMultipler = horizontalEdgeMultiplier + verticalEdgeMultiplier + 1;
+        */
+        float horizontalEdgeMultiplier = leftRight(uv.x);
+        float verticalEdgeMultiplier = leftRight(uv.y);
+        float edgeMultipler = saturate((horizontalEdgeMultiplier + verticalEdgeMultiplier) - 1);
+
+        float attenuationWithEdges = edgeMultipler * attenuation;
+
         // Calculate waves
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
         float waveMotion = phaseVelocitySquared * (
@@ -70,11 +86,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             cellRightData.r
             - 4 * cellData.r);
         
+
         float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;
-        newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
-        
-        // Prevent edge reflections
-        // ToDo
+        //newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
+        newWaveHeight = lerp(0.5, newWaveHeight, attenuationWithEdges);
         
         //float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
         float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
@@ -87,8 +102,8 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         */
         
         float edgeWave = 1;
-        returnValue.xy = (1-rightEdgeSignal) * returnValue.xy + rightEdgeSignal * (0.5, 0.5);
-        returnValue.xy = (1-leftEdgeSignal) * returnValue.xy + leftEdgeSignal * edgeWave.xx;
+        //returnValue.xy = (1-rightEdgeSignal) * returnValue.xy + rightEdgeSignal * (0.5, 0.5);
+        //returnValue.xy = (1-leftEdgeSignal) * returnValue.xy + leftEdgeSignal * edgeWave.xx;
 
         return returnValue;
     }

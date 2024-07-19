@@ -41,7 +41,15 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
 
         float4 returnValue = float4(0.5, 0.5, 0, 0);
 
-        returnValue = (1-leftEdgeSignal) * returnValue + leftEdgeSignal * (1, 1, 0, 0);
+        //Center signal
+        float horizontalCenter = -abs(uv.x-0.5)+0.1;
+        float verticalCenter = -abs(uv.y-0.5)+0.1;
+        float center = horizontalCenter + verticalCenter;
+        center = max(center, 0) * 5;
+        returnValue.xy += center;
+
+        //Left edge signal
+        //returnValue = (1-leftEdgeSignal) * returnValue + leftEdgeSignal * (1, 1, 0, 0);
 
         return returnValue;
 

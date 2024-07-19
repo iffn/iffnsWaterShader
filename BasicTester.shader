@@ -44,29 +44,44 @@ Shader "Unlit/BasicTester"
                 return o;
             }
 
+            float left(float x){ return max(cos(x), sign(x)); }
+            float right(float x) { return max(cos(x), sign(-x)); }
+            float leftRight(float x) { return min(left(x*5-1.5),sign(-x+0.5)*0.5+0.5) + min(right(x*5-3.5),sign(x-0.5)*0.5+0.5);}
+
             fixed4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv;
 
-                float d = 0.1;
+                float pixelWidthU = 0.02;
+                float pixelWidthV = 0.02;
 
-                float x = 1 - sign(uv.x - d);
+                // Store edge values for boundary check
+                float leftEdgeSignal = step(uv.x, pixelWidthU);
+                float topEdgeSignal = step(uv.y, pixelWidthV);
+                float rightEdgeSignal = step(1.0 - pixelWidthU, uv.x);
+                float bottomEdgeSignal = step(1.0 - pixelWidthV, uv.y);
 
-                float leftEdge = 1 - saturate(sign(uv.x - 0.01));
-                float topEdge = 1 - saturate(sign(uv.y - 0.01));
-                float rightEdge = 1 - saturate(sign(0.99 - uv.x));
-                float bottomEdge = 1 - saturate(sign(0.99 - uv.y));
+                // Compute isBoundaryPixel by combining edge checks
+                float isBoundaryPixelSignal = saturate(leftEdgeSignal + topEdgeSignal + rightEdgeSignal + bottomEdgeSignal);
+                float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
-                return saturate(leftEdge + topEdge + rightEdge + bottomEdge);
-                
-                x = saturate(x);
+                // Pixels from left
+                float pixelsFromLeft = uv.x / pixelWidthU;
 
-                x = x * (sin(_Time.x * 20) * 0.5 + 0.5);
-                
+                //sharp
+                /*
+                float horizontalEdgeMultiplier = -max(abs(uv.x-0.5)-0.3, 0) * 2;
+                float verticalEdgeMultiplier = -max(abs(uv.y-0.5)-0.3, 0) * 2;
+                float edgeMultipler = horizontalEdgeMultiplier + verticalEdgeMultiplier + 1;
+                */
 
-                fixed4 col = x;
-                
-                return col;
+                //cos edges:
+                float horizontalEdgeMultiplier = leftRight(uv.x);
+                float verticalEdgeMultiplier = leftRight(uv.y);
+                float edgeMultipler = saturate((horizontalEdgeMultiplier + verticalEdgeMultiplier) - 1);
+
+                //return min(left(uv.x*5-1.5),sign(-uv.x+0.5)*0.5+0.5);
+                return edgeMultipler;
             }
             ENDCG
         }
