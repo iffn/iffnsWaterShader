@@ -82,9 +82,9 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     - _dt: 0.1
-    - a: 1
+    - a: 0.99
     - attenuation: 1
-    - b: 1
+    - b: 0.9
     - phaseVelocitySquared: 0.2
     - pmlThickness: 5
     m_Colors:

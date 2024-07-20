@@ -4,9 +4,6 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     {
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
         attenuation("Attenuation", Range(0.0001, 1)) = 0.999
-        a("a", Range(0.0001, 1)) = 0.9
-        b("b", Range(0.0001, 1)) = 0.9
-        //OtherPublicParameterDefinitions
     }
 
     CGINCLUDE
@@ -17,12 +14,17 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
-    float a = 0.9;
-    float b = 0.9;
     sampler2D _depthTexture;
 
-    float corner(float x, float a, float b) {return min((1-a)/(b-1)*(x-b)+1, 1);}
+    float pixelWidthU;
+    float pixelWidthV;
     
+    //Absorbtion caluclation based on: newAbsorbed in Buffer A from https://www.shadertoy.com/view/ctS3Dh
+    float absorbtionValueNew(float valuePrev, float neighborNew, float neighborPrev, float timeStep)
+    {
+        return neighborPrev + (neighborNew - valuePrev) * (timeStep - 1.0) / (timeStep + 1.0);
+    }
+
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
         /*
@@ -33,8 +35,8 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         // Pixel coordinates:
         float2 uv = i.globalTexcoord;
-        float pixelWidthU = 1.0 / _CustomRenderTextureWidth;
-        float pixelWidthV = 1.0 / _CustomRenderTextureHeight;
+        pixelWidthU = 1.0 / _CustomRenderTextureWidth;
+        pixelWidthV = 1.0 / _CustomRenderTextureHeight;
         float4 duv = float4(pixelWidthU, pixelWidthV, 0 ,0);
 
         //Relative cell data:
@@ -55,15 +57,6 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float isBoundaryPixelSignal = saturate(leftEdgeSignal + topEdgeSignal + rightEdgeSignal + bottomEdgeSignal);
         float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
-        // Zero gradient boundary conditions
-        cellLeftData.r = lerp(cellLeftData.r, cellData.r, leftEdgeSignal);
-        cellRightData.r = lerp(cellRightData.r, cellData.r, rightEdgeSignal);
-        cellUpData.r = lerp(cellUpData.r, cellData.r, topEdgeSignal);
-        cellDownData.r = lerp(cellDownData.r, cellData.r, bottomEdgeSignal);
-
-        // Attenuation with edge reflection prevention
-        float attenuationMultiplier = corner(uv.x, a, b) * attenuation;
-
         // Calculate waves
         // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
         float waveMotion = phaseVelocitySquared * (
@@ -74,8 +67,12 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
             - 4 * cellData.r);
 
         float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;
-        newWaveHeight = lerp(0.5, newWaveHeight, attenuationMultiplier);
+        newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
         float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
+
+        //Edge absorbtion
+        float absorbtionValue = absorbtionValueNew(cellData.y, cellLeftData.x, cellData.y, 5);
+        returnValue.x = lerp(returnValue.x, absorbtionValue, rightEdgeSignal);
         
         return returnValue;
     }
