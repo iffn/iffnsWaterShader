@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,6 +123,58 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &4535223
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4535225}
+  - component: {fileID: 4535224}
+  m_Layer: 0
+  m_Name: WaterLogger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &4535224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4535223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b5e27a30f530d44688d84f6e6b74d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linkedCRT: {fileID: 8600000, guid: 94651e50280c3c5428380e92ec9451f7, type: 2}
+  maxRecordSteps: 700
+  grabCoordinate: {x: 512, y: 512}
+  r: 0
+  g: 0
+  b: 0
+  a: 0
+  valueOutput: 
+--- !u!4 &4535225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4535223}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.670884, y: -34.271973, z: -41.188732}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &245455453
 GameObject:
   m_ObjectHideFlags: 0
@@ -1142,8 +1194,6 @@ MonoBehaviour:
   b: 0
   a: 0
   max: 0
-  timeOutput: 
-  valueOutput: 
 --- !u!114 &1368467815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1708,8 +1758,6 @@ MonoBehaviour:
   b: 0
   a: 0
   max: 700
-  timeOutput: 
-  valueOutput: 
 --- !u!4 &1971227495
 Transform:
   m_ObjectHideFlags: 0
@@ -1938,3 +1986,4 @@ SceneRoots:
   - {fileID: 676671526}
   - {fileID: 1971227495}
   - {fileID: 2005910158}
+  - {fileID: 4535225}

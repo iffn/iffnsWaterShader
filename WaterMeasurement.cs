@@ -1,51 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
-public class InitializeCRT : MonoBehaviour
+public class WaterMeasurement : MonoBehaviour
 {
     [Header("Unity assignments")]
     [SerializeField] CustomRenderTexture linkedCRT;
-    [SerializeField] Material WaterInitializationMaterial;
-    [SerializeField] Material WaterCalculationMaterial;
-
-    [Header("Debug")]
-    public Material debugMaterial;
-    public float FPS;
+    public int maxRecordSteps;
     public Vector2Int grabCoordinate;
+
+    [Header("Output")]
     public float r;
     public float g;
     public float b;
     public float a;
-    public int max;
+    public string valueOutput = "";
 
-    int initialTimeCounter;
+    // Runtime variables
+    int counter;
 
-    void InitializeMaterial()
-    {
-        initialTimeCounter = Time.frameCount;
-        linkedCRT.material = WaterInitializationMaterial;
-
-        //linkedCRT.Initialize();
-        //GL.Clear(true, true, new Color(0.5f, 0.5f, 0.5f));
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        InitializeMaterial();
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        FPS = 1f / Time.deltaTime;
-
-        if(Time.frameCount == initialTimeCounter + 60)
-        {
-            linkedCRT.material = WaterCalculationMaterial;
-        }
-
         Color debugColor = ReadPixel(linkedCRT, grabCoordinate.x, grabCoordinate.y);
 
         r = debugColor.r;
@@ -53,7 +30,12 @@ public class InitializeCRT : MonoBehaviour
         b = debugColor.b;
         a = debugColor.a;
 
-        debugMaterial = linkedCRT.material;
+        if (counter++ < maxRecordSteps)
+        {
+            valueOutput += $"{debugColor.r}\n";
+        }
+
+        if (counter == maxRecordSteps) Debug.Log("Reached");
     }
 
     Color ReadPixel(CustomRenderTexture customRenderTexture, int x, int y)
@@ -77,10 +59,5 @@ public class InitializeCRT : MonoBehaviour
         Destroy(texture2D);
 
         return pixelColor;
-    }
-
-    public void InitializeLinkedCRT()
-    {
-        linkedCRT.Initialize();
     }
 }
