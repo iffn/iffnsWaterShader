@@ -25,6 +25,27 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         return neighborPrev + (neighborNew - valuePrev) * (timeStep - 1.0) / (timeStep + 1.0);
     }
 
+    float getNewWavePropagationData(float2 uv, float4 duv)
+    {
+        float4 cellData = currentTexture(uv);
+        float4 cellLeftData = currentTexture(uv - duv.xw);
+        float4 cellUpData = currentTexture(uv + duv.wy);
+        float4 cellRightData = currentTexture(uv + duv.xw);
+        float4 cellDownData = currentTexture(uv - duv.wy);
+
+        float waveMotion = phaseVelocitySquared * (
+            cellUpData.r +
+            cellDownData.r +
+            cellLeftData.r +
+            cellRightData.r
+            - 4 * cellData.r);
+        
+        float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;
+        newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
+
+        return newWaveHeight;
+    }
+
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
         /*
@@ -39,13 +60,9 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         pixelWidthV = 1.0 / _CustomRenderTextureHeight;
         float4 duv = float4(pixelWidthU, pixelWidthV, 0 ,0);
 
-        //Relative cell data:
-        // r = current state, g = previous state
-        float4 cellData = currentTexture(uv);
-        float4 cellUpData = currentTexture(uv + duv.wy);
-        float4 cellDownData = currentTexture(uv - duv.wy);
-        float4 cellRightData = currentTexture(uv + duv.xw);
-        float4 cellLeftData = currentTexture(uv - duv.xw);
+        //New wave height
+        newWaveHeight = getNewWavePropagationData(uv, duv);
+        float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
 
         // Store edge values for boundary check
         float leftEdgeSignal = step(uv.x, pixelWidthU);
@@ -57,21 +74,9 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float isBoundaryPixelSignal = saturate(leftEdgeSignal + topEdgeSignal + rightEdgeSignal + bottomEdgeSignal);
         float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
-        // Calculate waves
-        // Based on: https://github.com/hecomi/UnityWaterSurface/blob/master/Assets/WaterSimulation.shader
-        float waveMotion = phaseVelocitySquared * (
-            cellUpData.r +
-            cellDownData.r +
-            cellLeftData.r +
-            cellRightData.r
-            - 4 * cellData.r);
-
-        float newWaveHeight = saturate(2 * cellData.r - cellData.g) + waveMotion;
-        newWaveHeight = lerp(0.5, newWaveHeight, attenuation);
-        float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
-
-        //Edge absorbtion
-        float absorbtionValue = absorbtionValueNew(cellData.y, cellLeftData.x, cellData.y, 5);
+        // Edge absorbtion
+        float newCellLeftData = getNewWavePropagationData(uv - duv.xw, duv);
+        float absorbtionValue = absorbtionValueNew(cellData.x, newCellLeftData, cellData.x, 5);
         returnValue.x = lerp(returnValue.x, absorbtionValue, rightEdgeSignal);
         
         return returnValue;
