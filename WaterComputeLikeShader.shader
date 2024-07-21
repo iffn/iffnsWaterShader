@@ -60,8 +60,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         pixelWidthV = 1.0 / _CustomRenderTextureHeight;
         float4 duv = float4(pixelWidthU, pixelWidthV, 0 ,0);
 
+        float4 cellData = currentTexture(uv);
+
         //New wave height
-        newWaveHeight = getNewWavePropagationData(uv, duv);
+        float newWaveHeight = getNewWavePropagationData(uv, duv);
         float4 returnValue = float4(newWaveHeight, cellData.r, 0, 0);
 
         // Store edge values for boundary check
@@ -76,7 +78,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         // Edge absorbtion
         float newCellLeftData = getNewWavePropagationData(uv - duv.xw, duv);
-        float absorbtionValue = absorbtionValueNew(cellData.x, newCellLeftData, cellData.x, 5);
+        float absorbtionValue = absorbtionValueNew(cellData.x, newCellLeftData, cellData.x, 1);
         returnValue.x = lerp(returnValue.x, absorbtionValue, rightEdgeSignal);
         
         return returnValue;

@@ -52,7 +52,7 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         */
         
         //Left edge signal
-        returnValue = (1-leftEdgeSignal) * returnValue + leftEdgeSignal * (1, 1, 0, 0);
+        returnValue = lerp(returnValue, (1, 1, 0, 0), leftEdgeSignal);
 
         return returnValue;
 

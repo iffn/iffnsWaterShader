@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   linkedCRT: {fileID: 8600000, guid: 94651e50280c3c5428380e92ec9451f7, type: 2}
   maxRecordSteps: 700
-  grabCoordinate: {x: 512, y: 512}
+  grabCoordinate: {x: 50, y: 50}
   r: 0
   g: 0
   b: 0
@@ -1752,7 +1752,7 @@ MonoBehaviour:
   WaterCalculationMaterial: {fileID: 2100000, guid: 688af20ad1118044baf88b6ebc81fcba, type: 2}
   debugMaterial: {fileID: 0}
   FPS: 0
-  grabCoordinate: {x: 512, y: 512}
+  grabCoordinate: {x: 50, y: 50}
   r: 0
   g: 0
   b: 0
