@@ -83,9 +83,16 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float isNotBoundaryPixelSignal = 1 - isBoundaryPixelSignal;
 
         // Edge absorbtion
-        float newCellLeftData = getNewWavePropagationData(uv - duv.xw, duv);
-        float absorbtionValue = absorbtionValueNew(cellData.x, newCellLeftData, cellLeftData.x, absorptionTime);
-        returnValue.x = lerp(returnValue.x, absorbtionValue, rightEdgeSignal);
+        float2 proximityCellPosition = lerp(uv, uv - duv.xw, rightEdgeSignal);
+        proximityCellPosition = lerp(proximityCellPosition, uv + duv.wy, topEdgeSignal);
+        proximityCellPosition = lerp(proximityCellPosition, uv + duv.xw, leftEdgeSignal);
+        proximityCellPosition = lerp(proximityCellPosition, uv - duv.wy, bottomEdgeSignal);
+
+        float newCellProximityData = getNewWavePropagationData(proximityCellPosition, duv);
+        float absorbtionValue = absorbtionValueNew(cellData.x, newCellProximityData, currentTexture(proximityCellPosition).x, absorptionTime);
+        returnValue.x = lerp(returnValue.x, absorbtionValue, isBoundaryPixelSignal);
+
+        returnValue.x = saturate(returnValue.x);
         
         return returnValue;
     }
