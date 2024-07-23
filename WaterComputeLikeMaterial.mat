@@ -83,7 +83,7 @@ Material:
     - _ZWrite: 1
     - _dt: 0.1
     - a: 0.99
-    - absorptionTime: 3
+    - absorptionTime: 0.4
     - attenuation: 1
     - b: 0.9
     - phaseVelocitySquared: 0.2
