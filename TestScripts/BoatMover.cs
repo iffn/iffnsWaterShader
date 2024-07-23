@@ -18,7 +18,7 @@ public class BoatMover : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float pos = (Time.time * speed % (minValue * 2) - minValue);
+        float pos = (Time.frameCount * speed % (minValue * 2) - minValue);
 
         element.position = movementVector * pos;
     }
