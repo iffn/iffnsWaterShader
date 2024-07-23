@@ -4,6 +4,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     {
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
         attenuation("Attenuation", Range(0.0001, 1)) = 0.999
+        absorptionTime("Absorption time", Range(0.0001, 150)) = 1
     }
 
     CGINCLUDE
@@ -14,6 +15,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
+    float absorptionTime;
     sampler2D _depthTexture;
 
     float pixelWidthU;
@@ -78,7 +80,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         // Edge absorbtion
         float newCellLeftData = getNewWavePropagationData(uv - duv.xw, duv);
-        float absorbtionValue = absorbtionValueNew(cellData.x, newCellLeftData, cellData.x, 1);
+        float absorbtionValue = absorbtionValueNew(cellData.x, newCellLeftData, cellData.x, absorptionTime);
         returnValue.x = lerp(returnValue.x, absorbtionValue, rightEdgeSignal);
         
         return returnValue;
