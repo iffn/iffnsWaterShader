@@ -17,7 +17,6 @@ public class InitializeCRT : MonoBehaviour
     public float g;
     public float b;
     public float a;
-    public int max;
 
     int initialTimeCounter;
 

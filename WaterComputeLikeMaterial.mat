@@ -84,7 +84,7 @@ Material:
     - _dt: 0.1
     - a: 0.99
     - absorptionTime: 0.4
-    - attenuation: 1
+    - attenuation: 0.999
     - b: 0.9
     - phaseVelocitySquared: 0.2
     - pmlThickness: 5

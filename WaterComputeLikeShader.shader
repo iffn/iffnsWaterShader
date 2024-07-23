@@ -5,6 +5,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
         attenuation("Attenuation", Range(0.0001, 1)) = 0.999
         absorptionTime("Absorption time", Range(0.0001, 150)) = 1
+        _depthTexture("DepthTexture", 2D) = "white"
     }
 
     CGINCLUDE
@@ -92,7 +93,16 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float absorbtionValue = absorbtionValueNew(cellData.x, newCellProximityData, currentTexture(proximityCellPosition).x, absorptionTime);
         returnValue.x = lerp(returnValue.x, absorbtionValue, isBoundaryPixelSignal);
 
-        returnValue.x = saturate(returnValue.x);
+        //Depth camera
+        float2 uvDepth = float2(-uv.x + 1, uv.y);
+        float depthValueRaw = tex2D(_depthTexture, uvDepth);
+        float heightDifference = depthValueRaw - cellData.z;
+        float addition = heightDifference * 0.5;
+        returnValue.x += depthValueRaw.x;
+        returnValue.z = depthValueRaw.x;
+
+        //Apply data
+        //returnValue.x = saturate(returnValue.x);
         
         return returnValue;
     }
