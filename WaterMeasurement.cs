@@ -13,6 +13,7 @@ public class WaterMeasurement : MonoBehaviour
     public float b;
     public float a;
     public string valueOutput = "";
+    public int frame;
 
     // Runtime variables
     int counter;
@@ -20,6 +21,8 @@ public class WaterMeasurement : MonoBehaviour
     void Update()
     {
         Color debugColor = ReadPixel(linkedCRT, grabCoordinate.x, grabCoordinate.y);
+
+        frame = Time.frameCount;
 
         r = debugColor.r;
         g = debugColor.g;

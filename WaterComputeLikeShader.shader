@@ -5,6 +5,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
         attenuation("Attenuation", Range(0.0001, 1)) = 0.999
         absorptionTime("Absorption time", Range(0.0001, 150)) = 1
+        depthMultiplier("Depth multiplier", Range(0.0001, 1)) = 0.2
+        depthCameraPosition("Depth camera position", float) = -50
+        depthCameraFarClip("Depth camera far clip", float) = 60
+        waveHeightMultiplier("Wave height multiplier", float) = 2
         _depthTexture("DepthTexture", 2D) = "white"
     }
 
@@ -17,6 +21,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
     float absorptionTime;
+    float depthMultiplier;
+    float depthCameraPosition;
+    float depthCameraFarClip;
+    float waveHeightMultiplier;
     sampler2D _depthTexture;
 
     float pixelWidthU;
@@ -26,6 +34,16 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     float absorbtionValueNew(float valuePrev, float neighborNew, float neighborPrev, float timeStep)
     {
         return neighborPrev + (neighborNew - valuePrev) * (timeStep - 1.0) / (timeStep + 1.0);
+    }
+
+    float heightValueFromDepthRaw(float depthValueRaw)
+    {
+        return lerp(depthCameraPosition + depthCameraFarClip, depthCameraPosition, depthValueRaw);
+    }
+
+    float waveHeightFromData(float waveData)
+    {
+        return (waveData - 0.5) * waveHeightMultiplier;
     }
 
     float getNewWavePropagationData(float2 uv, float4 duv)
@@ -96,14 +114,22 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         //Depth camera
         float2 uvDepth = float2(-uv.x + 1, uv.y);
         float depthValueRaw = tex2D(_depthTexture, uvDepth);
-        float heightDifference = depthValueRaw - cellData.z;
-        float addition = heightDifference * 0.5;
-        returnValue.x += depthValueRaw.x;
+        float depthValue = heightValueFromDepthRaw(depthValueRaw);
+        float depthValuePrev = heightValueFromDepthRaw(cellData.z);
+        float heightDifference = depthValuePrev - depthValue;
+        float waveHeight = waveHeightFromData(cellData.x);
+        float underWaterSignal = step(0, waveHeight - depthValue);
+        float addition = heightDifference * depthMultiplier;
+        addition = lerp(0, addition, underWaterSignal);
+
+        returnValue.x += addition;
         returnValue.z = depthValueRaw.x;
 
         //Apply data
-        //returnValue.x = saturate(returnValue.x);
+        returnValue.x = saturate(returnValue.x);
         
+        //return float4(0, addition, depthValueRaw.x, 0);
+
         return returnValue;
     }
 
