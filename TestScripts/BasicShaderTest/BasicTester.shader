@@ -83,7 +83,12 @@ Shader "Unlit/BasicTester"
                 float edgeMultipler = saturate((horizontalEdgeMultiplier + verticalEdgeMultiplier) - 1);
 
                 //return min(left(uv.x*5-1.5),sign(-uv.x+0.5)*0.5+0.5);
-                return corner(uv.x, 0.2, 0.5);;
+                //return corner(uv.x, 0.2, 0.5);
+
+                //Edge waves
+                float edgeWave = sin(_Time.y + uv.x + uv.y) * 0.5 + 0.5;
+                return edgeWave.xxxx;
+
             }
             ENDCG
         }

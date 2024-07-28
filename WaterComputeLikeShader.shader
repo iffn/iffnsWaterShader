@@ -111,6 +111,12 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float absorbtionValue = absorbtionValueNew(cellData.x, newCellProximityData, currentTexture(proximityCellPosition).x, absorptionTime);
         returnValue.x = lerp(returnValue.x, absorbtionValue, isBoundaryPixelSignal);
 
+        //Edge waves
+        float edgeWave = sin(_Time.y * 3 - uv.x * 15 + uv.y * 0) * 0.25 + 0.25;
+        edgeWave = lerp(0, edgeWave, leftEdgeSignal);
+        //returnValue.x += edgeWave;
+        //return edgeWave.xxxx;
+        
         //Depth camera
         float2 uvDepth = float2(-uv.x + 1, uv.y);
         float depthValueRaw = tex2D(_depthTexture, uvDepth);
@@ -122,7 +128,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float addition = heightDifference * depthMultiplier;
         addition = lerp(0, addition, underWaterSignal);
 
-        returnValue.x += addition;
+        //returnValue.x += addition;
         returnValue.z = depthValueRaw.x;
 
         //Apply data

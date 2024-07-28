@@ -19,8 +19,6 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
 
     //OtherParameterDefinitions
 
-    
-
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
         //Retrn edge signal
@@ -52,7 +50,7 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         */
         
         //Left edge signal
-        //returnValue = lerp(returnValue, (1, 1, 0, 0), leftEdgeSignal);
+        returnValue = lerp(returnValue, (1, 1, 0, 0), leftEdgeSignal);
 
         return returnValue;
 
