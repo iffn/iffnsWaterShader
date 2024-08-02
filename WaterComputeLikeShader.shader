@@ -20,6 +20,8 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     
     #define currentTexture(U)  tex2D(_SelfTexture2D, float2(U))
 
+    const float TAU = 6.28318530717958647692;
+
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
     float absorptionTime;
@@ -118,7 +120,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         //Edge waves
         float framesBetweenPeaks = 100;
         float wavesOnSurface = 5;
-        float edgeWave = sin(frameCount * 6.28318 / framesBetweenPeaks + uv.x * 6.28318 * wavesOnSurface + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+        float edgeWave = sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurface + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
         //edgeWave = lerp(0, edgeWave, leftEdgeSignal);
         //returnValue.x += edgeWave;
         return edgeWave.xxxx;
