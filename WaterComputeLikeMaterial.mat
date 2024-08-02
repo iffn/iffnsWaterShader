@@ -90,6 +90,7 @@ Material:
     - depthCameraLength: 60
     - depthCameraPosition: -50
     - depthMultiplier: 0.01
+    - frameCount: 0
     - phaseVelocitySquared: 0.2
     - pmlThickness: 5
     - waveHeightMultiplier: 1
