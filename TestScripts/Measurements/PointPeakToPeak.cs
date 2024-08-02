@@ -29,7 +29,7 @@ public class PointPeakToPeak : MonoBehaviour
 
         if(!onAscend && nowOnAscend)
         {
-            Debug.Log($"Peak after {Time.frameCount - prevPeak}");
+            Debug.Log($"{gameObject.name}: Peak after {Time.frameCount - prevPeak} at {Time.frameCount}");
 
             prevPeak = Time.frameCount;
         }

@@ -10,6 +10,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         depthCameraPosition("Depth camera position", float) = -50
         depthCameraFarClip("Depth camera far clip", float) = 60
         waveHeightMultiplier("Wave height multiplier", float) = 2
+        testMultiplier("Test multiplier", float) = 2   
         _depthTexture("DepthTexture", 2D) = "white"
     }
 
@@ -27,6 +28,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     float depthCameraFarClip;
     float frameCount;
     float waveHeightMultiplier;
+    float testMultiplier;
     sampler2D _depthTexture;
 
     float pixelWidthU;
@@ -114,8 +116,9 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         returnValue.x = lerp(returnValue.x, absorbtionValue, isBoundaryPixelSignal);
 
         //Edge waves
-        float framesBetweenPeaks = 20;
-        float edgeWave = sin(frameCount * 6.28318 / framesBetweenPeaks + uv.x * 15 + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+        float framesBetweenPeaks = 100;
+        float wavesOnSurface = 5;
+        float edgeWave = sin(frameCount * 6.28318 / framesBetweenPeaks + uv.x * 6.28318 * wavesOnSurface + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
         //edgeWave = lerp(0, edgeWave, leftEdgeSignal);
         //returnValue.x += edgeWave;
         return edgeWave.xxxx;
