@@ -112,10 +112,10 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         returnValue.x = lerp(returnValue.x, absorbtionValue, isBoundaryPixelSignal);
 
         //Edge waves
-        float edgeWave = sin(_Time.y * 3 - uv.x * 15 + uv.y * 0) * 0.25 + 0.25;
-        edgeWave = lerp(0, edgeWave, leftEdgeSignal);
+        float edgeWave = sin(_Time.y * 3 + uv.x * 15 + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+        //edgeWave = lerp(0, edgeWave, leftEdgeSignal);
         //returnValue.x += edgeWave;
-        //return edgeWave.xxxx;
+        return edgeWave.xxxx;
         
         //Depth camera
         float2 uvDepth = float2(-uv.x + 1, uv.y);
