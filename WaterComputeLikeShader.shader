@@ -20,7 +20,7 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
     
     #define currentTexture(U)  tex2D(_SelfTexture2D, float2(U))
 
-    const float TAU = 6.28318530717958647692;
+    static const float TAU = 6.28318530717958647692;
 
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
