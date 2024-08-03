@@ -45,6 +45,7 @@ public class InitializeCRT : MonoBehaviour
             linkedCRT.material = WaterCalculationMaterial;
         }
 
+        WaterInitializationMaterial.SetFloat("frameCount", Time.frameCount);
         WaterCalculationMaterial.SetFloat("frameCount", Time.frameCount);
 
         Color debugColor = ReadPixel(linkedCRT, grabCoordinate.x, grabCoordinate.y);

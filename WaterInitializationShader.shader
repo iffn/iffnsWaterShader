@@ -4,6 +4,7 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
     {
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
         _depthTexture("DepthTexture", 2D) = "white"
+        frameCount("Frame count", float) = 0
         //OtherPublicParameterDefinitions
     }
 
@@ -13,11 +14,18 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
     
     #define currentTexture(U)  tex2D(_SelfTexture2D, float2(U))
 
+    static const float TAU = 6.28318530717958647692;
+
     float phaseVelocitySquared = 0.02;
     float attenuation = 0.999;
-    sampler2D _depthTexture;
+    float frameCount;
 
     //OtherParameterDefinitions
+
+    float getSineWave(float frameCount, float2 uv, float framesBetweenPeaks, float wavesOnSurfaceFromRight, float wavesOnSurfaceFromBottom)
+    {
+        return sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurfaceFromRight + uv.y * TAU * wavesOnSurfaceFromBottom) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+    }
 
     float4 frag(v2f_customrendertexture i) : SV_Target
     {
@@ -39,6 +47,14 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         float leftEdgeSignal = step(uv.x, pixelWidthU);
 
         float4 returnValue = float4(0.5, 0.5, 0, 0);
+
+        float framesBetweenPeaks = 100;
+        float wavesOnSurfaceFromRight = 10;
+        float wavesOnSurfaceFromBottom = 0;
+        float newWaveHeight = getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+        float oldWaveHeight = getSineWave(frameCount - 1, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+
+        return float4(newWaveHeight, oldWaveHeight, 0, 0);
 
         //Center signal
         /*

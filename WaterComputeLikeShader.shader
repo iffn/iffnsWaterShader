@@ -52,6 +52,11 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         return (waveData - 0.5) * waveHeightMultiplier;
     }
 
+    float getSineWave(float frameCount, float2 uv, float framesBetweenPeaks, float wavesOnSurfaceFromRight, float wavesOnSurfaceFromBottom)
+    {
+        return sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurfaceFromRight + uv.y * TAU * wavesOnSurfaceFromBottom) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+    }
+
     float getNewWavePropagationData(float2 uv, float4 duv)
     {
         float4 cellData = currentTexture(uv);
@@ -119,11 +124,14 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
 
         //Edge waves
         float framesBetweenPeaks = 100;
-        float wavesOnSurface = 5;
-        float edgeWave = sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurface + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
-        //edgeWave = lerp(0, edgeWave, leftEdgeSignal);
-        //returnValue.x += edgeWave;
-        return edgeWave.xxxx;
+        float wavesOnSurfaceFromRight = 10;
+        float wavesOnSurfaceFromBottom = 0;
+        float edgeWave = getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+        //float edgeWave = sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurface + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+        float edgeSignal = saturate(rightEdgeSignal);
+        edgeWave = lerp(returnValue.x, edgeWave, edgeSignal);
+        returnValue.x = edgeWave;
+        //return edgeWave.xxxx;
         
         //Depth camera
         float2 uvDepth = float2(-uv.x + 1, uv.y);
