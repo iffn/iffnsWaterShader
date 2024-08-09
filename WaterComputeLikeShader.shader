@@ -122,13 +122,18 @@ Shader "iffnsShaders/WaterShader/WaterComputeLikeShader"
         float absorbtionValue = absorbtionValueNew(cellData.x, newCellProximityData, currentTexture(proximityCellPosition).x, absorptionTime);
         returnValue.x = lerp(returnValue.x, absorbtionValue, isBoundaryPixelSignal);
 
-        //Edge waves
+        //Edge waves, x+ = from right, y+ = from bottom
         float framesBetweenPeaks = 100;
         float wavesOnSurfaceFromRight = 10;
         float wavesOnSurfaceFromBottom = 0;
         float edgeWave = getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
-        //float edgeWave = sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurface + uv.y * 0) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
-        float edgeSignal = saturate(rightEdgeSignal);
+
+        framesBetweenPeaks = 150;
+        wavesOnSurfaceFromRight = 5;
+        wavesOnSurfaceFromBottom = 10;
+        edgeWave += getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+
+        float edgeSignal = saturate(rightEdgeSignal + bottomEdgeSignal);
         edgeWave = lerp(returnValue.x, edgeWave, edgeSignal);
         returnValue.x = edgeWave;
         //return edgeWave.xxxx;

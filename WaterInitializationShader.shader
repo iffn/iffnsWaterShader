@@ -54,6 +54,12 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         float newWaveHeight = getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
         float oldWaveHeight = getSineWave(frameCount - 1, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
 
+        framesBetweenPeaks = 150;
+        wavesOnSurfaceFromRight = 5;
+        wavesOnSurfaceFromBottom = 10;
+        newWaveHeight += getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+        oldWaveHeight += getSineWave(frameCount - 1, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+
         return float4(newWaveHeight, oldWaveHeight, 0, 0);
 
         //Center signal
