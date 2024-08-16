@@ -8,6 +8,8 @@ public class InitializeCRT : MonoBehaviour
     [SerializeField] CustomRenderTexture linkedCRT;
     [SerializeField] Material WaterInitializationMaterial;
     [SerializeField] Material WaterCalculationMaterial;
+    [SerializeField] Vector4 wave1FbpRBH = new Vector4(100, 10, 0, 1);
+    [SerializeField] Vector4 wave2FbpRBH = new Vector4(150, 5, 10, 1);
 
     [Header("Debug")]
     public Material debugMaterial;
@@ -24,6 +26,11 @@ public class InitializeCRT : MonoBehaviour
     {
         initialTimeCounter = Time.frameCount;
         linkedCRT.material = WaterInitializationMaterial;
+
+        WaterInitializationMaterial.SetVector("wave1FbpRBH", wave1FbpRBH);
+        WaterInitializationMaterial.SetVector("wave2FbpRBH", wave2FbpRBH);
+        WaterCalculationMaterial.SetVector("wave1FbpRBH", wave1FbpRBH);
+        WaterCalculationMaterial.SetVector("wave2FbpRBH", wave2FbpRBH);
 
         //linkedCRT.Initialize();
         //GL.Clear(true, true, new Color(0.5f, 0.5f, 0.5f));

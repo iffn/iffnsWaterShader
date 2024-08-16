@@ -85,6 +85,7 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         center = max(center, 0) * 5;
         returnValue.xy += center;
         */
+        return float4(leftEdgeSignal, leftEdgeSignal, 0, 0);
         
         //Left edge signal
         returnValue = lerp(returnValue, (1, 1, 0, 0), leftEdgeSignal);
@@ -92,7 +93,6 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         return returnValue;
 
         //Return flat
-        return float4(0.5, 0.5, 0, 0);
     }
 
     ENDCG
