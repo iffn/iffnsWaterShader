@@ -84,15 +84,16 @@ Material:
     - _dt: 0.1
     - a: 0.99
     - absorptionTime: 0.4
-    - attenuation: 0.999
+    - attenuation: 1
     - b: 0.9
     - depthCameraFarClip: 60
     - depthCameraLength: 60
     - depthCameraPosition: -50
     - depthMultiplier: 0.01
-    - frameCount: 0
+    - frameCount: 2248
     - phaseVelocitySquared: 0.2
     - pmlThickness: 5
+    - testMultiplier: 2
     - waveHeightMultiplier: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

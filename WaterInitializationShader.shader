@@ -2,10 +2,17 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
 {
     Properties
     {
+        //Simulation settings
         phaseVelocitySquared("Phase velocity squared", Range(0.0001, 100)) = 0.02
-        _depthTexture("DepthTexture", 2D) = "white"
+
+        //Runtime variables
         frameCount("Frame count", float) = 0
-        //OtherPublicParameterDefinitions
+
+        //Waves
+        wave1FbpRBH("Wave 1 FBP-R-B-H", Vector) = (100,10,0,1)
+        wave2FbpRBH("Wave 2 FBP-R-B-H", Vector) = (150,5,10,1)
+
+        _depthTexture("DepthTexture", 2D) = "white"
     }
 
     CGINCLUDE
@@ -17,14 +24,22 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
     static const float TAU = 6.28318530717958647692;
 
     float phaseVelocitySquared = 0.02;
-    float attenuation = 0.999;
     float frameCount;
+    float4 wave1FbpRBH;
+    float4 wave2FbpRBH;
 
     //OtherParameterDefinitions
 
     float getSineWave(float frameCount, float2 uv, float framesBetweenPeaks, float wavesOnSurfaceFromRight, float wavesOnSurfaceFromBottom)
     {
         return sin(frameCount * TAU / framesBetweenPeaks + uv.x * TAU * wavesOnSurfaceFromRight + uv.y * TAU * wavesOnSurfaceFromBottom) * 0.25 + 0.25; //x+ = from right, y+ = from bottom
+    }
+
+    float2 newAndOldWaveHeight(float frameCount, float2 uv, float4 waveFbpRBH)
+    {
+        float newHeight = waveFbpRBH.w * getSineWave(frameCount, uv, waveFbpRBH.x, waveFbpRBH.y, waveFbpRBH.z);
+        float oldHeight = waveFbpRBH.w * getSineWave(frameCount - 1, uv, waveFbpRBH.x, waveFbpRBH.y, waveFbpRBH.z);
+        return float2(newHeight, oldHeight);
     }
 
     float4 frag(v2f_customrendertexture i) : SV_Target
@@ -46,19 +61,19 @@ Shader "iffnsShaders/WaterShader/InitializationShader"
         // Store edge values for boundary check
         float leftEdgeSignal = step(uv.x, pixelWidthU);
 
-        float4 returnValue = float4(0.5, 0.5, 0, 0);
+        float4 returnValue = float4(0, 0, 0, 0);
 
-        float framesBetweenPeaks = 100;
-        float wavesOnSurfaceFromRight = 10;
-        float wavesOnSurfaceFromBottom = 0;
-        float newWaveHeight = getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
-        float oldWaveHeight = getSineWave(frameCount - 1, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+        float newWaveHeight = 0;
+        float oldWaveHeight = 0;
+        float2 wave;
 
-        framesBetweenPeaks = 150;
-        wavesOnSurfaceFromRight = 5;
-        wavesOnSurfaceFromBottom = 10;
-        newWaveHeight += getSineWave(frameCount, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
-        oldWaveHeight += getSineWave(frameCount - 1, uv, framesBetweenPeaks, wavesOnSurfaceFromRight, wavesOnSurfaceFromBottom);
+        wave = newAndOldWaveHeight(frameCount, uv, wave1FbpRBH);
+        newWaveHeight += wave.x;
+        oldWaveHeight += wave.y;
+
+        wave = newAndOldWaveHeight(frameCount, uv, wave2FbpRBH);
+        newWaveHeight += wave.x;
+        oldWaveHeight += wave.y;
 
         return float4(newWaveHeight, oldWaveHeight, 0, 0);
 

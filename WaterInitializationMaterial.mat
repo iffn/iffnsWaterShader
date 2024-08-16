@@ -83,6 +83,7 @@ Material:
     - _ZWrite: 1
     - _dt: 0.1
     - attenuation: 0.9999
+    - frameCount: 2248
     - phaseVelocitySquared: 20
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
